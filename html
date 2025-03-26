@@ -1,0 +1,121 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Panel Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .section { margin-bottom: 30px; border: 1px solid #ddd; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Panel de Administración</h1>
+    
+    <div class="section">
+        <h3>Añadir Usuario</h3>
+        <form id="addUserForm">
+            <input type="text" id="newUsername" placeholder="Nombre de usuario" required>
+            <input type="password" id="newPassword" placeholder="Contraseña" required>
+            <button type="submit">Agregar Usuario</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h3>Crear Tarea</h3>
+        <form id="createTaskForm">
+            <select id="taskUser" required></select>
+            <input type="text" id="taskName" placeholder="Nombre tarea" required>
+            <textarea id="taskDesc" placeholder="Descripción" required></textarea>
+            <input type="number" id="taskTime" placeholder="Tiempo estimado (horas)" required>
+            <button type="submit">Crear Tarea</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h3>Tareas Existentes</h3>
+        <table id="tasksTable">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Tarea</th>
+                    <th>Descripción</th>
+                    <th>Tiempo</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem('admin'));
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        if(!currentUser || currentUser.role !== 'admin') window.location.href = 'login.html';
+
+        // Llenar usuarios en select
+        const userSelect = document.getElementById('taskUser');
+        data.users.forEach(user => {
+            if(user.role === 'user') {
+                const option = document.createElement('option');
+                option.value = user.username;
+                option.textContent = user.username;
+                userSelect.appendChild(option);
+            }
+        });
+
+        // Agregar usuario
+        document.getElementById('addUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newUser = {
+                username: document.getElementById('newUsername').value,
+                password: document.getElementById('newPassword').value,
+                role: 'user'
+            };
+            
+            data.users.push(newUser);
+            localStorage.setItem('admin', JSON.stringify(data));
+            alert('Usuario agregado');
+            this.reset();
+        });
+
+        // Crear tarea
+        document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newTask = {
+                user: document.getElementById('taskUser').value,
+                name: document.getElementById('taskName').value,
+                desc: document.getElementById('taskDesc').value,
+                time: document.getElementById('taskTime').value,
+                status: 'Pendiente'
+            };
+            
+            data.tasks.push(newTask);
+            localStorage.setItem('admin', JSON.stringify(data));
+            updateTasksTable();
+            this.reset();
+        });
+
+        // Actualizar tabla de tareas
+        function updateTasksTable() {
+            const tbody = document.querySelector('#tasksTable tbody');
+            tbody.innerHTML = '';
+            
+            data.tasks.forEach(task => {
+                const row = `
+                    <tr>
+                        <td>${task.user}</td>
+                        <td>${task.name}</td>
+                        <td>${task.desc}</td>
+                        <td>${task.time} horas</td>
+                        <td>${task.status}</td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+        updateTasksTable();
+    </script>
+</body>
+</html>
