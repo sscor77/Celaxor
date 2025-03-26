@@ -1,4 +1,3 @@
-<!-- user.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,7 +28,7 @@
             taskCard.innerHTML = `
                 <h3>${task.name}</h3>
                 <p>${task.desc}</p>
-                <p><strong>Tiempo estimado:</strong> ${task.time} horas</p>
+                <p><strong>Tiempo estimado:</strong> ${task.time} minutos</p>
                 <select onchange="updateStatus(${index}, this.value)">
                     <option ${task.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
                     <option ${task.status === 'En progreso' ? 'selected' : ''}>En progreso</option>
