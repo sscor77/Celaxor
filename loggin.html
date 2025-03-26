@@ -1,0 +1,57 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 8px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <div class="form-group">
+            <label>Usuario:</label>
+            <input type="text" id="username" required>
+        </div>
+        <div class="form-group">
+            <label>Contraseña:</label>
+            <input type="password" id="password" required>
+        </div>
+        <button type="submit">Ingresar</button>
+    </form>
+
+    <script>
+        // Datos iniciales
+        if(!localStorage.getItem('admin')) {
+            const initialData = {
+                users: [
+                    { username: 'admin', password: '1234', role: 'admin' }
+                ],
+                tasks: []
+            };
+            localStorage.setItem('admin', JSON.stringify(initialData));
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = JSON.parse(localStorage.getItem('admin'));
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const user = data.users.find(u => u.username === username && u.password === password);
+            
+            if(user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                if(user.role === 'admin') window.location.href = 'admin.html';
+                else window.location.href = 'user.html';
+            } else {
+                alert('Credenciales incorrectas');
+            }
+        });
+    </script>
+</body>
+</html>
