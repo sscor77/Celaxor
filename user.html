@@ -1,0 +1,53 @@
+<!-- user.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Panel Usuario</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .task-card { border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; }
+        select { margin-top: 10px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Mis Tareas</h1>
+    <div id="tasksContainer"></div>
+
+    <script>
+        const data = JSON.parse(localStorage.getItem('admin'));
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        if(!currentUser || currentUser.role !== 'user') window.location.href = 'login.html';
+
+        // Mostrar tareas del usuario
+        const tasksContainer = document.getElementById('tasksContainer');
+        const userTasks = data.tasks.filter(task => task.user === currentUser.username);
+
+        userTasks.forEach((task, index) => {
+            const taskCard = document.createElement('div');
+            taskCard.className = 'task-card';
+            taskCard.innerHTML = `
+                <h3>${task.name}</h3>
+                <p>${task.desc}</p>
+                <p><strong>Tiempo estimado:</strong> ${task.time} horas</p>
+                <select onchange="updateStatus(${index}, this.value)">
+                    <option ${task.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                    <option ${task.status === 'En progreso' ? 'selected' : ''}>En progreso</option>
+                    <option ${task.status === 'Completada' ? 'selected' : ''}>Completada</option>
+                </select>
+            `;
+            tasksContainer.appendChild(taskCard);
+        });
+
+        window.updateStatus = function(taskIndex, newStatus) {
+            data.tasks = data.tasks.map((task, index) => {
+                if(index === taskIndex) {
+                    return { ...task, status: newStatus };
+                }
+                return task;
+            });
+            localStorage.setItem('admin', JSON.stringify(data));
+        };
+    </script>
+</body>
+</html>
