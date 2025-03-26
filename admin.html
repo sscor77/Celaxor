@@ -1,4 +1,3 @@
-<!-- admin.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -84,11 +83,14 @@
         // Crear tarea
         document.getElementById('createTaskForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const taskTimeInHours = document.getElementById('taskTime').value;
+            const taskTimeInMinutes = taskTimeInHours * 60; // Convertimos horas a minutos
+            
             const newTask = {
                 user: document.getElementById('taskUser').value,
                 name: document.getElementById('taskName').value,
                 desc: document.getElementById('taskDesc').value,
-                time: document.getElementById('taskTime').value,
+                time: taskTimeInMinutes, // Guardamos en minutos
                 status: 'Pendiente'
             };
             
@@ -96,6 +98,21 @@
             localStorage.setItem('admin', JSON.stringify(data));
             updateTasksTable();
             this.reset();
+
+            // Notificación de tarea
+            if (Notification.permission === 'granted') {
+                new Notification('Nueva tarea asignada', {
+                    body: `Se ha asignado una nueva tarea a ${newTask.user}: ${newTask.name}`
+                });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification('Nueva tarea asignada', {
+                            body: `Se ha asignado una nueva tarea a ${newTask.user}: ${newTask.name}`
+                        });
+                    }
+                });
+            }
         });
 
         // Actualizar tabla de tareas
@@ -109,7 +126,7 @@
                         <td>${task.user}</td>
                         <td>${task.name}</td>
                         <td>${task.desc}</td>
-                        <td>${task.time} horas</td>
+                        <td>${task.time} minutos</td>
                         <td>${task.status}</td>
                     </tr>`;
                 tbody.innerHTML += row;
